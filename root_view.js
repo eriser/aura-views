@@ -44,7 +44,7 @@ RootView.prototype.onMousePressed = function RootView_onMousePressed(e) {
 RootView.prototype.onMouseDragged = function RootView_onMouseDragged(e) {
   if (this._mouseCaptureView) {
     var point_in_target_coords =
-        this.convertPointToView(this, this._mouseCaptureView, point);
+        this.convertPointToView(this, this._mouseCaptureView, e.location);
     return this._mouseCaptureView._processMouseDragged(
         new MouseEvent(point_in_target_coords, e.type, e.flags));
   }

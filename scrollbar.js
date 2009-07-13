@@ -125,11 +125,13 @@ ScrollbarThumb.prototype.onMouseDragged =
     var thumb_x = e.x - this._mouseOffset;
     this._scrollBar.scrollToThumbPosition(this.x + thumb_x, false);
   } else {
+    /*
     if ((e.x < this.x - this.SCROLLBAR_THUMB_DRAG_OUT_SNAP) ||
         (e.x > (this.x + this.width + this.SCROLLBAR_THUMB_DRAG_OUT_SNAP))) {
       this._scrollBar.scrollToThumbPosition(this._dragStartPosition, false);
       return true;
     }
+    */
     var thumb_y = e.y - this._mouseOffset;
     this._scrollBar.scrollToThumbPosition(this.y + thumb_y, false);
   }
@@ -257,7 +259,7 @@ Scrollbar.prototype.scrollByAmount = function Scrollbar_scrollByAmount(amount) {
 Scrollbar.prototype.scrollToThumbPosition =
     function Scrollbar_scrollToThumbPosition(thumb_position, scroll_to_middle) {
   this._contentsScrollOffset =
-      this._calculateContentsOffsite(thumb_position, scroll_to_middle);
+      this._calculateContentsOffset(thumb_position, scroll_to_middle);
   this._normalizeContentsOffset();
   this._scrollContentsToOffset();
 }
