@@ -1,0 +1,176 @@
+<html>
+<head>
+<title>Views-HTML Test</title>
+
+<style type="text/css">
+<!--
+body { margin: 0px; }
+#btn { position: absolute; left: auto; right: 10px; top: 10px; bottom: auto; }
+-->
+</style>
+
+<script type="text/javascript">
+<!--
+function log(message) {
+  var console = document.getElementById("console");
+  console.value += message + "\n";
+}
+//-->
+</script>
+
+<script type="text/javascript" src="base.js"></script>
+<script type="text/javascript" src="timer.js"></script>
+<script type="text/javascript" src="animation.js"></script>
+<script type="text/javascript" src="gfx.js"></script>
+<script type="text/javascript" src="event.js"></script>
+<script type="text/javascript" src="view.js"></script>
+<script type="text/javascript" src="root_view.js"></script>
+<script type="text/javascript" src="widget.js"></script>
+<script type="text/javascript" src="button.js"></script>
+<script type="text/javascript" src="scrollview.js"></script>
+<script type="text/javascript" src="scrollbar.js"></script>
+<script type="text/javascript">
+
+function ScrollContents() {
+}
+ScrollContents.prototype = new View;
+ScrollContents.prototype.paint = function ScrollContents_paint(cx) {
+  cx.fillStyle = "rgba(0,0,255,0.3)";
+  cx.fillRect(0, 0, this.width, this.height);
+}
+ScrollContents.didChangeBounds = function ScrollContents_didChangeBounds(o, n) {
+  log("old: " + o.toString() + " n: " + n.toString());
+}
+
+function ContentsView() {
+  this.toolbar = null;
+  this.hscroll = null;
+  this.vscroll = null;
+  this.scrollView = null;
+}
+ContentsView.prototype = new View;
+ContentsView.prototype.layout = function ContentsView_layout() {
+  if (this.toolbar) {
+    var ps = this.toolbar.getPreferredSize();
+    this.toolbar.setBounds(50, 50, this.width - 100, ps.height);
+    this.scrollView.setBounds(this.toolbar.x + 2, this.toolbar.bounds.bottom,
+                              this.toolbar.width - 4,
+                              this.height - this.toolbar.bounds.bottom - 50);
+  }
+}
+ContentsView.prototype.hierarchyChanged =
+    function ContentsView_hierarchyChanged(is_add, parent, child) {
+  if (is_add && child == this) {
+    this.toolbar = new ToolbarView;
+    this.addChild(this.toolbar);
+    this.scrollView =
+        new ScrollView(new Scrollbar(true, true), new Scrollbar(false, true));
+    this.addChild(this.scrollView);
+    var scroll_contents = new ScrollContents;
+    scroll_contents.setBounds(0, 0, 500, 10000);
+    this.scrollView.setContents(scroll_contents);
+  }
+}
+
+function ToolbarView() {
+  this._backLeft = new Image;
+  this._backLeft.src = "chrome/content_top_left_corner.png";
+  this._backCenter = new Image;
+  this._backCenter.src = "chrome/content_top_center.png";
+  this._backRight = new Image;
+  this._backRight.src = "chrome/content_top_right_corner.png";
+  
+  this._back = new Image;
+  this._back.src = "chrome/back.png";
+  this._back_h = new Image;
+  this._back_h.src = "chrome/back_h.png";
+  this._back_p = new Image;
+  this._back_p.src = "chrome/back_p.png";
+
+  this._forward = new Image;
+  this._forward.src = "chrome/forward.png";
+  this._forward_h = new Image;
+  this._forward_h.src = "chrome/forward_h.png";
+  this._forward_p = new Image;
+  this._forward_p.src = "chrome/forward_p.png";
+
+  
+}
+ToolbarView.prototype = new View;
+ToolbarView.prototype.CONTROL_INDENT = 6;
+ToolbarView.prototype.CONTROL_VOFFSET = 6;
+ToolbarView.prototype.paint = function ToolbarView_paint(cx) {
+  cx.drawImage(this._backLeft, 0, 0);
+  cx.save();
+  cx.fillStyle = "rgb(220,237,250)"
+  cx.fillRect(2, 2, this.width - 4, this.height);
+  cx.restore();  
+  cx.save();
+  cx.fillStyle = cx.createPattern(this._backCenter, "repeat");
+  cx.fillRect(this._backLeft.width, 0,
+              this.width - this._backLeft.width - this._backRight.width,
+              this.height);
+  cx.restore();
+  cx.drawImage(this._backRight, this.width - this._backRight.width, 0);
+}
+ToolbarView.prototype.getPreferredSize =
+    function ToolbarView_getPreferredSize() {
+  return new Size(0, this._backCenter.height);
+}
+ToolbarView.prototype.hierarchyChanged =
+    function ToolbarView_hierarchyChanged(is_add, parent, child) {
+  if (is_add && child == this) {
+    this._backButton = new ImageButton;
+    this._backButton.setImage(this._backButton.BS_NORMAL, this._back);
+    this._backButton.setImage(this._backButton.BS_HOT, this._back_h);
+    this._backButton.setImage(this._backButton.BS_PUSHED, this._back_p);
+    this.addChild(this._backButton);
+
+    this._forwardButton = new ImageButton;
+    this._forwardButton.setImage(this._forwardButton.BS_NORMAL, this._forward);
+    this._forwardButton.setImage(this._forwardButton.BS_HOT, this._forward_h);
+    this._forwardButton.setImage(this._forwardButton.BS_PUSHED, this._forward_p);
+    this.addChild(this._forwardButton);
+  }
+}
+ToolbarView.prototype.layout = function ToolbarView_layout() {
+  var ps = this._backButton.getPreferredSize();
+  this._backButton.setBounds(this.CONTROL_INDENT, this.CONTROL_VOFFSET,
+                             ps.width, ps.height);
+  ps = this._forwardButton.getPreferredSize();
+  this._forwardButton.setBounds(this._backButton.bounds.right, this.CONTROL_VOFFSET,
+                                ps.width, ps.height);
+}
+
+function init() {
+  var console = document.getElementById("console");
+  console.style.display = "none";
+  var container = document.getElementById("container");
+  container.setAttribute("width", document.body.offsetWidth);
+  container.setAttribute("height", document.body.offsetHeight);
+  if (window.location.search != "?debug") {
+    paintCanvas();
+  } else {
+    container.setAttribute("height", document.body.offsetHeight - 200);
+    console.style.display = "block";
+    console.style.width = document.body.offsetWidth;
+    console.style.height = 200;
+  }
+}
+
+function paintCanvas() {
+  document.getElementById("btn").style.display = "none"; 
+  var canvas = document.getElementById("container");
+  var widget = new Widget(canvas);
+  var cv = new ContentsView;
+  widget.setContentsView(cv); 
+}
+</script>
+</head>
+<body onload="init();">
+<canvas id="container">Your browser doesn't support Views-HTML.</canvas>
+<button id="btn" onclick="paintCanvas()">Init</button>
+<textarea id="console"></textarea>
+</body>
+</html>
+
