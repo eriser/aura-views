@@ -1,0 +1,31 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>gfx.js unittest</title>
+    <script type="text/javascript" src="third_party/jsunittest/jsunittest.js"/>
+    <script type="text/javascript" src="gfx.js"/>
+    <link rel="stylesheet" type="text/css" href="third_party/jsunittest/unittest.css"/>
+  </head>
+  <body>
+    <h1>gfx.js unittest</h1>
+    <div id="testlog"></div>
+    <script type="text/javascript">
+    <!--
+      new Test.Unit.Runner({
+        testSize: function() {
+        var s0 = new Size;
+        this.assertEqual(0, s0.width);
+        this.assertEqual(0, s0.height);
+        
+        var s2 = new Size(100, 500);
+        this.assertEqual(100, s2.width);
+        this.assertEqual(500, s2.height);
+        
+        var s1 = new Size(s2);
+        this.assertEqual(s2.width, s1.width);
+        this.assertEqual(s2.height, s1.height);
+        }
+      });
+    //-->
+    </script>
+  </body>
+</html>
