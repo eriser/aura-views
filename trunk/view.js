@@ -15,7 +15,8 @@ function FillLayout() {
 }
 FillLayout.prototype = new LayoutManager;
 FillLayout.prototype.layout = function FillLayout_layout(view) {
-  check(view.children.length == 1, "FillLayout can only be used on views with one child");
+  check(view.children.length == 1,
+        "FillLayout can only be used on views with one child");
   view.children[0].setBounds(0, 0, view.width, view.height);  
 }
 
