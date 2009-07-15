@@ -29,6 +29,11 @@ function View() {
   this.layoutManager = null;
   this.enabled = true;
   this.visible = true;
+  this.id = -1;
+  this.group = -1;
+  this.contextMenuController = null;
+  this.dragController = null;
+  this.className = "aura/View";
 }
 View.RTL_IGNORE_MIRRORING = 0;
 View.RTL_USE_MIRRORING = 1;
@@ -131,6 +136,32 @@ View.prototype.getLocalBounds = function View_getLocalBounds(include_border) {
                   Math.max(0, this.width - insets.width),
                   Math.max(0, this.height - insets.height));
 }
+View.prototype.getVisibleBounds = function View_getVisibleBounds() {
+  if (!this.visibleInRootView())
+    return new Rect;
+  var visible_bounds = new Rect(new Point, this.size);
+  var ancestor_bounds = null;
+  var view = this;
+  var root_x = 0;
+  var root_y = 0;
+  while (view && !visible_bounds.empty()) {
+    root_x += view.getX(this.RTL_USE_MIRRORING);
+    root_y += view.y;
+    visible_bounds.offset(view.getX(this.RTL_USE_MIRRORING), view.y);
+    var ancestor = view.parent;
+    if (ancestor) {
+      ancestor_bounds.setRect(new Point, ancestor.size);
+      visible_bounds = visible_bounds.intersect(ancestor_bounds);
+    } else if (!view.getWidget()) {
+      return new Rect;
+    }
+    view = ancestor;
+  }
+  if (visible_bounds.empty())
+    return visible_bounds;
+  visible_bounds.offset(-root_x, -root_y);
+  return visible_bounds;
+}
 View.prototype.getPosition = function View_getPosition() {
   // TODO(beng): RTL.
   return new Point(this.getX(this.RTL_USE_MIRRORING), this.y);
@@ -214,6 +245,10 @@ View.prototype.getFocusManager = function View_getFocusManager() {
   var widget = this.getWidget();
   return widget ? widget.getFocusManager() : null;
 }
+View.prototype.hasFocus = function View_hasFocus() {
+  var focus_manager = this.getFocusManager();
+  return focus_manager ? focus_manager.getFocusedView() == this : false;
+}
 View.prototype.schedulePaint = function View_schedulePaint() {
   switch (arguments.length) {
     case 1:
@@ -233,6 +268,22 @@ View.prototype.schedulePaint = function View_schedulePaint() {
   }
 }
 View.prototype.paint = function View_paint(cx) {
+  this.paintBackground(cx);
+  this.paintFocusBorder(cx);
+  this.paintBorder(cx);
+}
+View.prototype.paintBackground = function View_paintBackground(cx) {
+  if (this.background)
+    this.background.paint(cx, this);
+}
+View.prototype.paintBorder = function View_paintBorder(cx) {
+  if (this.border)
+    this.border.paint(cx, this);
+}
+View.prototype.paintFocusBorder = function View_paintFocusBorder(cx) {
+  if (this.hasFocus() && this.isFocusable())
+    notimplemented();
+    // drawFocusRect
 }
 View.prototype.paintChildren = function View_paintChildren(cx) {
   for (var i = 0; i < this.children.length; ++i)
@@ -258,6 +309,16 @@ View.prototype.processPaint = function View_processPaint(cx) {
   this.paintChildren(cx);
   
   cx.restore();
+}
+View.prototype.paintNow = function View_paintNow() {
+  if (!this.visible)
+    return;
+  if (this.parent)
+    this.parent.paintNow();
+}
+View.prototype.getCursorForPoint =
+    function View_getCursorForPoint(event_type, point) {
+  return null;
 }
 View.prototype.addChild = function View_addChildView(child) {
   if (child.parent)
@@ -300,6 +361,15 @@ View.prototype.getWidget = function View_getWidget() {
 View.prototype.getRootView = function View_getRootView() {
   return this.parent ? this.parent.getRootView() : NULL;
 }
+View.prototype.getThemeProvider = function View_getThemeProvider() {
+  var widget = this.getWidget();
+  return widget ? widget.getThemeProvider() : null;
+}
+View.prototype.showContextMenu =
+    function View_showContextMenu(point, is_mouse_gesture) {
+  if (this.contextMenuController)
+    this.contextMenuController.showContextMenu(this, point, is_mouse_gesture);
+}
 View.prototype.onMousePressed = function View_onMousePressed(e) {
   return false;
 }
@@ -313,6 +383,12 @@ View.prototype.onMouseMoved = function View_onMouseMoved(e) {
 View.prototype.onMouseEntered = function View_onMouseEntered(e) {
 }
 View.prototype.onMouseExited = function View_onMouseExited(e) {
+}
+View.prototype.onMouseWheel = function View_onMouseWheel(e) {
+}
+View.prototype.onKeyPressed = function View_onKeyPressed(e) {
+}
+View.prototype.onKeyReleased = function View_onKeyReleased(e) {
 }
 View.prototype._processMousePressed = function View__processMousePressed(e) {
   return this.onMousePressed(e);
@@ -332,6 +408,33 @@ View.prototype.setVisible = function View_setVisible(visible) {
   if (this.visible)
     this.schedulePaint();
   this.visible = visible;
+  this._propagateVisibilityNotifications(this, visible);
   if (this.visible)
     this.schedulePaint();
+}
+View.prototype.visibleInRootView = function View_visibleInRootView() {
+  return this.visible && this.parent ? this.parent.visibleInRootView() : false;
+}
+View.prototype.requestFocus = function View_requestFocus() {
+  var root = this.getRootView();
+  if (root && this.isFocusable())
+    root.focusView(this);
+}
+View.prototype.willGainFocus = function View_willGainFocus() {
+}
+View.prototype.didGainFocus = function View_didGainFocus() {
+}
+View.prototype.willLoseFocus = function View_willLoseFocus() {
+}
+View.prototype.exceededDragThreshold =
+    function View_exceededDragThreshold(dx, dy) {
+  return Math.abs(dx) > 5 || Math.abs(dy) > 5;
+}
+View.prototype.getPageScrollIncrement =
+    function View_getPageScrollIncrement(scroll_view, horizontal, positive) {
+  return 0;    
+}
+View.prototype.getLineScrollIncrement =
+    function View_getLineScrollIncrement(scroll_view, horizontal, positive) {
+  return 0;
 }
