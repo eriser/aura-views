@@ -203,7 +203,7 @@ Rect.prototype.intersects = function Rect_intersects(other_rect) {
            other_rect.y >= this.bottom || other_rect.bottom <= this.y);
 }
 Rect.prototype.intersect = function Rect_intersect(other_rect) {
-  var rr = Math.max(this.x, other_rect.x);
+  var rx = Math.max(this.x, other_rect.x);
   var ry = Math.max(this.y, other_rect.y);
   var rr = Math.min(this.right, other_rect.right);
   var rb = Math.min(this.bottom, other_rect.bottom);
