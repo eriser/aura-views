@@ -305,6 +305,8 @@
           this.assert(c.equals(r.centerPoint()));
         },
         test_Rect_toString: function () {
+          var r = new Rect(5, 5, 10, 10);
+          this.assertEqual("5,5 10x10", r.toString());
         }
       });
     //-->
