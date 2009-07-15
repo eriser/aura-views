@@ -2,7 +2,8 @@
   <head>
     <title>gfx.js unittest</title>
     <script type="text/javascript" src="third_party/jsunittest/jsunittest.js"/>
-    <script type="text/javascript" src="gfx.js"/>
+    <script type="text/javascript" src="base.js" />
+    <script type="text/javascript" src="gfx.js" />
     <link rel="stylesheet" type="text/css" href="third_party/jsunittest/unittest.css"/>
   </head>
   <body>
@@ -11,19 +12,110 @@
     <script type="text/javascript">
     <!--
       new Test.Unit.Runner({
-        testSize: function() {
-        var s0 = new Size;
-        this.assertEqual(0, s0.width);
-        this.assertEqual(0, s0.height);
+        test_Size: function() {
+          var s0 = new Size;
+          this.assertEqual(0, s0.width);
+          this.assertEqual(0, s0.height);
+          
+          var s2 = new Size(100, 500);
+          this.assertEqual(100, s2.width);
+          this.assertEqual(500, s2.height);
+          
+          var s1 = new Size(s2);
+          this.assertEqual(s2.width, s1.width);
+          this.assertEqual(s2.height, s1.height);
+        },
+        test_Size_setSize: function () {
+          var s0 = new Size;
+          s0.setSize(100, 500);
+          this.assertEqual(100, s0.width);
+          this.assertEqual(500, s0.height);
+        },
+        test_Size_enlarge: function () {
+          var s2 = new Size(100, 500);
+          s2.enlarge(100, 100);
+          this.assertEqual(200, s2.width);
+          this.assertEqual(600, s2.height);
+        },
+        test_Size_equals: function() {
+          var sa = new Size(100, 500);
+          var sb = new Size(200, 700);
+          var sc = new Size(100, 500);
+          this.assert(!sa.equals(sb));
+          this.assert(sa.equals(sc));
+        },
+        test_Size_empty: function() {
+          var sa = new Size;
+          var sb = new Size(100, 500);
+          this.assert(sa.empty());
+          this.assert(!sb.empty());
+        },
+        test_Size_toString: function () {
+          var sa = new Size;
+          var sb = new Size(100, 500);
+          this.assertEqual("0x0", sa.toString());
+          this.assertEqual("100x500", sb.toString());
+        },
+
+        test_Point: function() {
+          var p0 = new Point;
+          this.assertEqual(0, p0.x);
+          this.assertEqual(0, p0.y);
+          
+          var p2 = new Point(100, 500);
+          this.assertEqual(100, p2.x);
+          this.assertEqual(500, p2.y);
+          
+          var p1 = new Point(p2);
+          this.assertEqual(p2.x, p1.x);
+          this.assertEqual(p2.y, p1.y);
+        },
+        test_Point_setPoint: function () {
+          var p0 = new Point;
+          p0.setPoint(100, 500);
+          this.assertEqual(100, p0.x);
+          this.assertEqual(500, p0.y);
+        },
+        test_Point_offset: function () {
+          var pa = new Point;
+          pa.offset(100, 500);
+          this.assertEqual(100, pa.x);
+          this.assertEqual(500, pa.y);
+          
+          var pb = new Point(100, 100);
+          pa.offset(pb);
+          this.assertEqual(200, pa.x);
+          this.assertEqual(600, pa.y);        
+        },
+        test_Point_equals: function () {
+          var pa = new Point(100, 500);
+          var pb = new Point(200, 700);
+          var pc = new Point(100, 500);
+          this.assert(!pa.equals(pb));
+          this.assert(pa.equals(pc));
+        },
+        test_Point_toString: function () {
+          this.assertEqual("0,0", (new Point).toString());
+          this.assertEqual("100,500", (new Point(100, 500)).toString())
+        },
         
-        var s2 = new Size(100, 500);
-        this.assertEqual(100, s2.width);
-        this.assertEqual(500, s2.height);
-        
-        var s1 = new Size(s2);
-        this.assertEqual(s2.width, s1.width);
-        this.assertEqual(s2.height, s1.height);
+        test_Rect: function() {
+          this.assert((new Rect).instanceOf(Rect));
+          
+          var ra = new Rect(100, 500);
+          this.assertEqual(100, ra.width);
+          this.assertEqual(500, ra.height);
+          
+          /*
+          this.assert(r1.origin.equals(r2.origin));
+          this.assert(r1.size.equals(r2.size));
+          */
+          
+          var r4 = new Rect(20, 10, 100, 500);
+          this.assert(r4.origin.equals(new Point(20, 10)));
+          this.assert(r4.size.equals(new Size(100, 500)));
         }
+        
       });
     //-->
     </script>
