@@ -214,9 +214,9 @@ Rect.prototype.intersect = function Rect_intersect(other_rect) {
 }
 Rect.prototype.union = function Rect_union(other_rect) {
   if (this.empty())
-    return other_rect;
+    return new Rect(other_rect);
   if (other_rect.empty())
-    return this;
+    return new Rect(this);
   var rx = Math.min(this.x, other_rect.x);
   var ry = Math.min(this.y, other_rect.y);
   var rr = Math.max(this.right, other_rect.right);
@@ -224,10 +224,50 @@ Rect.prototype.union = function Rect_union(other_rect) {
   return new Rect(rx, ry, rr - rx, rb - ry);
 }
 Rect.prototype.subtract = function Rect_subtract(other_rect) {
-  notimplemented();
+  if (!this.intersects(other_rect))
+    return new Rect(this);
+  if (other_rect.contains(this))
+    return new Rect;
+  
+  var rx = this.x;
+  var ry = this.y;
+  var rr = this.right;
+  var rb = this.bottom;
+  
+  if (other_rect.y <= this.y && other_rect.bottom >= this.bottom) {
+    // complete intersection in the y-direction
+    if (other_rect.x <= this.x)
+      rx = other_rect.right;
+    else
+      rr = other_rect.x;
+  } else if (other_rect.x <= this.x && other_rect.right >= this.right) {
+    // complete intersection in the x-direction
+    if (other_rect.y <= this.y)
+      ry = other_rect.bottom;
+    else
+      rb = other_rect.y;
+  }
+  return new Rect(rx, ry, rr - rx, rb - ry);
+}
+Rect.prototype._adjustAlongAxis =
+    function Rect__adjustAlongAxis(dest_origin, dest_size, origin, size) {
+  if (origin.value < dest_origin) {
+    origin.value = dest_origin;
+    size.value = Math.min(dest_size, size.value);
+  } else {
+    size.value = Math.min(dest_size, size.value);
+    origin.value = Math.min(dest_origin + dest_size,
+                            origin.value + size.value) - size.value;
+  }
 }
 Rect.prototype.adjustToFit = function Rect_adjustToFit(other_rect) {
-  notimplemented();
+  var new_x = { value: this.x };
+  var new_y = { value: this.y };
+  var new_width = { value: this.width };
+  var new_height = { value: this.height };
+  this._adjustAlongAxis(other_rect.x, other_rect.width, new_x, new_width);
+  this._adjustAlongAxis(other_rect.y, other_rect.height, new_y, new_height);
+  return new Rect(new_x.value, new_y.value, new_width.value, new_height.value);
 }
 Rect.prototype.centerPoint = function Rect_centerPoint() {
   return new Point(this.x + this.width / 2, this.y + this.height / 2)
