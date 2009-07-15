@@ -186,9 +186,44 @@
         test_Rect_empty: function () {
           this.assert((new Rect).empty());
           this.assert(!(new Rect(0, 0, 100, 500)).empty());
+        },
+        test_Rect_equals: function () {
+          var ra = new Rect;
+          var rb = new Rect(0, 0, 50, 100);
+          var rc = new Rect;
+          this.assert(!ra.equals(rb));
+          this.assert(ra.equals(rc));
+        },
+        test_Rect_contains: function () {
+          var r = new Rect(0, 0, 100, 100);
+          this.assert(r.contains(50, 50));
+          this.assert(r.contains(new Point(50, 50)));
+          this.assert(!r.contains(120, 50));
+          this.assert(r.contains(new Rect(10, 10, 30, 15)));          
+        },
+        test_Rect_intersects: function () {
+        
+        },
+        test_Rect_intersect: function () {
+        
+        },
+        test_Rect_union: function () {
+          
+        },
+        test_Rect_subtract: function () {
+        
+        },
+        test_Rect_adjustToFit: function () {
+        
+        },
+        test_Rect_centerPoint: function () {
+          var r = new Rect(0, 0, 100, 100);
+          var c = new Point(50, 50);
+          this.assert(c.equals(r.centerPoint()));
+        },
+        test_Rect_toString: function () {
+        
         }
-        
-        
       });
     //-->
     </script>
