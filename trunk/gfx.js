@@ -78,9 +78,6 @@ Point.prototype.equals = function Point_equals(other_point) {
 Point.prototype.toString = function Point_toString() {
   return this.x + "," + this.y;
 }
-Point.prototype.isPoint = function Point_isPoint(o) {
-  return o.prototype == Point.prototype;
-}
 
 function Rect() {
   switch (arguments.length) {
