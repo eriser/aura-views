@@ -202,7 +202,18 @@
           this.assert(r.contains(new Rect(10, 10, 30, 15)));          
         },
         test_Rect_intersects: function () {
-        
+          var rects = [
+            [ new Rect,                 new Rect,                 false ],
+            [ new Rect(0, 0, 10, 10),   new Rect(0, 0, 10, 10),   true  ],
+            [ new Rect(0, 0, 10, 10),    new Rect(10, 10, 10, 10), false ],
+            [ new Rect(10, 10, 10, 10), new Rect(0, 0, 10, 10),   false ],
+            [ new Rect(10, 10, 10, 10), new Rect(5, 5, 10, 10),   true  ],
+            [ new Rect(10, 10, 10, 10), new Rect(15, 15, 10, 10), true  ],
+            [ new Rect(10, 10, 10, 10), new Rect(20, 15, 10, 10), false ],
+            [ new Rect(10, 10, 10, 10), new Rect(21, 15, 10, 10), false ]
+          ];
+          for (var i = 0; i < rects.length; ++i)
+            this.assertEqual(rects[i][2], rects[i][0].intersects(rects[i][1]));
         },
         test_Rect_intersect: function () {
         

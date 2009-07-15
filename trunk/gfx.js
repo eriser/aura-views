@@ -199,10 +199,18 @@ Rect.prototype.contains = function Rect_contains() {
   return false;
 }
 Rect.prototype.intersects = function Rect_intersects(other_rect) {
-  notimplemented();
+  return !(other_rect.x >= this.right || other_rect.right <= this.x ||
+           other_rect.y >= this.bottom || other_rect.bottom <= this.y);
 }
 Rect.prototype.intersect = function Rect_intersect(other_rect) {
-  notimplemented();
+  var rr = Math.max(this.x, other_rect.x);
+  var ry = Math.max(this.y, other_rect.y);
+  var rr = Math.min(this.right, other_rect.right);
+  var rb = Math.min(this.bottom, other_rect.bottom);
+  
+  if (rx >= rr || ry >= rb)
+    rx = ry = rr = rb = 0; // non-intersecting.
+  return new Rect(rx, ry, rr - rx, rb - ry);
 }
 Rect.prototype.union = function Rect_union(other_rect) {
   if (this.empty())
