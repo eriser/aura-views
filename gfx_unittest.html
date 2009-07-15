@@ -231,10 +231,7 @@
           ];
           for (var i = 0; i < rects.length; ++i) {
             var ir = rects[i][0].intersect(rects[i][1]);
-            this.assertEqual(rects[i][2].x, ir.x);
-            this.assertEqual(rects[i][2].y, ir.y);
-            this.assertEqual(rects[i][2].width, ir.width);
-            this.assertEqual(rects[i][2].height, ir.height);
+            this.assert(ir.equals(rects[i][2]));
           }
         },
         test_Rect_union: function () {
@@ -255,17 +252,52 @@
           ];
           for (var i = 0; i < rects.length; ++i) {
             var ur = rects[i][0].union(rects[i][1]);
-            this.assertEqual(rects[i][2].x, ur.x);
-            this.assertEqual(rects[i][2].y, ur.y);
-            this.assertEqual(rects[i][2].width, ur.width);
-            this.assertEqual(rects[i][2].height, ur.height);
+            this.assert(ur.equals(rects[i][2]));
           }
         },
         test_Rect_subtract: function () {
-        
+          var rects = [
+            [ new Rect(10, 10, 20, 20), new Rect(10, 10, 20, 20),
+              new Rect ], // matching
+            [ new Rect(10, 10, 20, 20), new Rect(5, 5, 30, 30),
+              new Rect ], // contains
+            [ new Rect(10, 10, 20, 20), new Rect(30, 30, 20, 20),
+              new Rect(10, 10, 20, 20) ], // no intersection
+            [ new Rect(10, 10, 20, 20), new Rect(15, 15, 20, 20),
+              new Rect(10, 10, 20, 20) ], // not a complete intersection in either direction
+            [ new Rect(10, 10, 20, 20), new Rect(10, 15, 20, 20),
+              new Rect(10, 10, 20, 5) ], // Complete intersection in x-direction
+            [ new Rect(10, 10, 20, 20), new Rect(5, 15, 30, 20),
+              new Rect(10, 10, 20, 5) ], // Complete intersection in x-direction
+            [ new Rect(10, 10, 20, 20), new Rect(5, 5, 30, 20),
+              new Rect(10, 25, 20, 5) ], // Complete intersection in x-direction
+            [ new Rect(10, 10, 20, 20), new Rect(10, 10, 10, 30),
+              new Rect(20, 10, 10, 20) ], // Complete intersection in the y-direction
+            [ new Rect(10, 10, 20, 20), new Rect(5, 5, 20, 30),
+              new Rect(25, 10, 5, 20) ] // Complete intersection in the y-direction
+          ];
+          for (var i = 0; i < rects.length; ++i) {
+            var sr = rects[i][0].subtract(rects[i][1]);
+            this.assert(sr.equals(rects[i][2]));
+          }
         },
         test_Rect_adjustToFit: function () {
-        
+          var rects = [
+            [ new Rect(0, 0, 2, 2), new Rect(0, 0, 2, 2),
+              new Rect(0, 0, 2, 2) ],
+            [ new Rect(2, 2, 3, 3), new Rect(0, 0, 4, 4),
+              new Rect(1, 1, 3, 3) ],
+            [ new Rect(-1, -1, 5, 5), new Rect(0, 0, 4, 4),
+              new Rect(0, 0, 4, 4) ],
+            [ new Rect(2, 2, 4, 4), new Rect(0, 0, 3, 3),
+              new Rect(0, 0, 3, 3) ],
+            [ new Rect(2, 2, 1, 1), new Rect(0, 0, 3, 3),
+              new Rect(2, 2, 1, 1) ]
+          ];
+          for (var i = 0 ; i < rects.length; ++i) {
+            var ar = rects[i][0].adjustToFit(rects[i][1]);
+            this.assert(ar.equals(rects[i][2]));
+          }
         },
         test_Rect_centerPoint: function () {
           var r = new Rect(0, 0, 100, 100);
@@ -273,7 +305,6 @@
           this.assert(c.equals(r.centerPoint()));
         },
         test_Rect_toString: function () {
-        
         }
       });
     //-->
