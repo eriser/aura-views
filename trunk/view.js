@@ -27,7 +27,11 @@ function View() {
   this.children = new Array;
   this.parentOwned = true;
   this.layoutManager = null;
+  this.enabled = true;
+  this.visible = true;
 }
+View.RTL_IGNORE_MIRRORING = 0;
+View.RTL_USE_MIRRORING = 1;
 View.prototype.setBounds = function View_setBounds() {
   switch (arguments.length) {
   case 4:
@@ -40,6 +44,14 @@ View.prototype.setBounds = function View_setBounds() {
     var old_bounds = this.bounds;
     this.bounds = arguments[0];
     this.didChangeBounds(old_bounds, this.bounds);
+    
+    var root = this.getRootView();
+    if (root) {
+      var size_changed = old_bounds.size != this.bounds.size;
+      var position_changed = old_bounds.origin != this.bounds.origin;
+      if (size_changed || position_changed)
+        root.viewBoundsChanged(this, size_changed, position_changed);
+    }
     break;
   default:
     invalidargcount();
@@ -55,6 +67,20 @@ View.prototype.didChangeBounds = function View_didChangeBounds(old_bounds,
                                                                new_bounds) {
   this.layout();
 }
+View.prototype.scrollRectToVisible = function View_scrollRectToVisible(rect) {
+  if (this.parent) {
+    this.parent.scrollRectToVisible(this.getX(this.RTL_USE_MIRRORING) + rect.x,
+                                    this.y + y, this.width, this.height);
+  }
+}
+View.prototype.setLayoutManager =
+    function View_setLayoutManager(layout_manager) {
+  if (this.layoutManager && "uninstalled" in this.layoutManager)
+    this.layoutManager.uninstalled(this);
+  this.layoutManager = layout_manager;
+  if (this.layoutManager && "installed" in this.layoutManager)
+    this.layoutManager.installed(this);
+}
 View.prototype.layout = function View_layout() {
   if (this.layoutManager) {
     this.layoutManager.layout(this);
@@ -63,6 +89,9 @@ View.prototype.layout = function View_layout() {
       this.children[i].layout();
   }
   this.schedulePaint();
+}
+View.prototype.layoutIsRightToLeft = function View_layoutIsRightToLeft() {
+  return this.getWidget().layoutIsRightToLeft();
 }
 View.prototype.__defineGetter__(
     "x",
@@ -76,16 +105,35 @@ View.prototype.__defineGetter__(
 View.prototype.__defineGetter__(
     "height",
     function View_height() { return this.bounds.height; });
-View.prototype.getBounds = function View_getBounds() {
-  // TODO(beng): RTL
-  return this.bounds;
+View.prototype.getBounds = function View_getBounds(mirroring_option) {
+  var bounds = new Rect(this.bounds);
+  if (mirroring_option == this.RTL_USE_MIRRORING)
+    bounds.x = this.mirroredX();
+  return bounds;
+}
+View.prototype.getX = function View_getX(mirroring_option) {
+  return mirroring_option == this.RTL_USE_MIRRORING ? this.x : this.mirroredX();
+}
+View.prototype.mirroredX = function View_mirroredX() {
+  if (this.parent && this.parent.layoutIsRightToLeft())
+    return this.parent.width - this.x - this.width;
+  return this.x;
+}
+View.prototype.mirroredLeftPointForRect =
+    function View_mirroredLeftPointForRect(rect) {
+  return this.layoutIsRightToLeft() ? this.width - rect.x - rect.width : rect.x;
 }
 View.prototype.getLocalBounds = function View_getLocalBounds(include_border) {
-  return new Rect(0, 0, this.width, this.height);
+  if (include_border || !this.border)
+    return new Rect(0, 0, this.width, this.height);
+  var insets = this.border.getInsets();
+  return new Rect(insets.left, insets.top,
+                  Math.max(0, this.width - insets.width),
+                  Math.max(0, this.height - insets.height));
 }
 View.prototype.getPosition = function View_getPosition() {
   // TODO(beng): RTL.
-  return this.bounds.origin;
+  return new Point(this.getX(this.RTL_USE_MIRRORING), this.y);
 }
 View.prototype.__defineGetter__(
     "size",
@@ -94,6 +142,9 @@ View.prototype.getPreferredSize = function View_getPreferredSize() {
   if (this.layoutManager)
     return this.layoutManager.getPreferredSize();
   return new Size;
+}
+View.prototype.getMinimumSize = function View_getMinimumSize() {
+  return this.getPreferredSize();
 }
 View.prototype.convertPointToView = function View_convertPointToView() {
   var try_other_direction = true;
@@ -149,6 +200,19 @@ View.prototype.getViewForPoint = function View_getViewForPoint(point) {
       return child.getViewForPoint(point_in_child_coords);
   }
   return this;
+}
+View.prototype.setEnabled = function View_setEnabled(enabled) {
+  if (enabled != this.enabled) {
+    this.enabled = enabled;
+    this.schedulePaint();
+  }
+}
+View.prototype.isFocusable = function View_isFocusable() {
+  return this.focusable && this.enabled && this.visible;
+}
+View.prototype.getFocusManager = function View_getFocusManager() {
+  var widget = this.getWidget();
+  return widget ? widget.getFocusManager() : null;
 }
 View.prototype.schedulePaint = function View_schedulePaint() {
   switch (arguments.length) {

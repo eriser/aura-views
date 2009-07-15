@@ -1,8 +1,51 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{5968EBA1-0B32-453B-AB6E-97453B307420}"
+	ProjectSection(SolutionItems) = preProject
+		animation.js = animation.js
+		base.js = base.js
+		button.js = button.js
+		event.js = event.js
+		gfx.js = gfx.js
+		root_view.js = root_view.js
+		scrollbar.js = scrollbar.js
+		scrollview.js = scrollview.js
+		spreadsheet.js = spreadsheet.js
+		timer.js = timer.js
+		view.js = view.js
+		widget.js = widget.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{FEA218EA-B001-4A3C-BEB1-EE36A5FD221F}"
+	ProjectSection(SolutionItems) = preProject
+		test.html = test.html
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "other", "other", "{CAA03AA4-DE6C-46C5-A6B1-4D36E482716A}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FB69B46C-188D-4D54-9065-2D52765DA472}"
+	ProjectSection(SolutionItems) = preProject
+		gfx_unittest.html = gfx_unittest.html
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "third_party", "third_party", "{5DD4AEB7-A86A-4263-98C9-431D4A9CB09F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "jsunittest", "jsunittest", "{0BB8AB7C-7FD2-48F9-8FB7-6EE6503A98E9}"
+	ProjectSection(SolutionItems) = preProject
+		third_party\jsunittest\jsunittest.js = third_party\jsunittest\jsunittest.js
+		third_party\jsunittest\README.aura = third_party\jsunittest\README.aura
+		third_party\jsunittest\unittest.css = third_party\jsunittest\unittest.css
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0BB8AB7C-7FD2-48F9-8FB7-6EE6503A98E9} = {5DD4AEB7-A86A-4263-98C9-431D4A9CB09F}
 	EndGlobalSection
 EndGlobal
