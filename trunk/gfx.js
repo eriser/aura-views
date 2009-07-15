@@ -180,16 +180,15 @@ Rect.prototype.contains = function Rect_contains() {
   // x, y; point; rect;
   switch (arguments.length) {
   case 2:
-    notimplemented(); // x, y
-    break;
+    return arguments[0] >= this.x && arguments[0] < this.right &&
+           arguments[1] >= this.y && arguments[1] < this.bottom;
   case 1:
     if (arguments[0].instanceOf(Point)) {
-      var point = arguments[0];
-      return point.x >= this.x && point.x < this.right &&
-             point.y >= this.y && point.y < this.bottom;
+      return this.contains(arguments[0].x, arguments[0].y);
     } else if (arguments[0].instanceOf(Rect)) {
-      notimplemented();
-      break;
+      var r = arguments[0];
+      return r.x >= this.x && r.y >= this.y &&
+             r.right < this.right && r.bottom < this.bottom;
     } else {
       notreached();
     }
@@ -215,8 +214,6 @@ Rect.prototype.union = function Rect_union(other_rect) {
   var rr = Math.max(this.right, other_rect.right);
   var rb = Math.max(this.bottom, other_rect.bottom);
   return new Rect(rx, ry, rr - rx, rb - ry);
-
-  return Rect(rx, ry, rr - rx, rb - ry);
 }
 Rect.prototype.subtract = function Rect_subtract(other_rect) {
   notimplemented();
