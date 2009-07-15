@@ -145,9 +145,6 @@ ToolbarView.prototype.layout = function ToolbarView_layout() {
 function init() {
   var console = document.getElementById("console");
   console.style.display = "none";
-  var container = document.getElementById("container");
-  container.setAttribute("width", document.body.offsetWidth);
-  container.setAttribute("height", document.body.offsetHeight);
   if (window.location.search != "?debug") {
     paintCanvas();
   } else {
@@ -160,16 +157,17 @@ function init() {
 
 function paintCanvas() {
   document.getElementById("btn").style.display = "none"; 
-  var canvas = document.getElementById("container");
-  var widget = new Widget(canvas);
-  var cv = new ContentsView;
-  widget.setContentsView(cv); 
+  var widget = new Widget;
+  widget.init(document.getElementById("container"),
+              new Rect(0, 0, document.body.offsetWidth,
+                       document.body.offsetHeight));
+  widget.setContentsView(new ContentsView); 
 }
 
 </script>
 </head>
 <body onload="init();">
-<canvas id="container">Your browser doesn't support Views-HTML.</canvas>
+<div id="container" />
 <button id="btn" onclick="paintCanvas();">Init</button>
 <textarea id="console"></textarea>
 </body>
