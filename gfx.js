@@ -36,9 +36,6 @@ Size.prototype.empty = function Size_empty() {
 Size.prototype.toString = function Size_toString() {
   return this.width + "x" + this.height;
 }
-Size.prototype.isSize = function Size_isSize(o) {
-  return o.prototype == Size.prototype;
-}
 
 function Point() {
   switch (arguments.length) {
@@ -94,16 +91,16 @@ function Rect() {
   case 2:
     if (arguments[0].instanceOf(Point) && arguments[1].instanceOf(Size)) {
       // Rect::Rect(Point origin, Size size);
-      this.origin = arguments[0];
-      this.size = arguments[1];
+      this.origin = new Point(arguments[0]);
+      this.size = new Size(arguments[1]);
     } else {
       // Rect::Rect(int width, int height);
       this.size = new Size(arguments[0], arguments[1]);
     }
     break;
   case 1:  // Rect::Rect(const Rect& other);
-    this.origin = arguments[0].origin;
-    this.size = arguments[0].size;
+    this.origin = new Point(arguments[0].origin);
+    this.size = new Size(arguments[0].size);
     break;
   case 0:  // Rect::Rect();
     this.origin = new Point;
