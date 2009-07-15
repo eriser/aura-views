@@ -92,6 +92,7 @@ function Rect() {
       this.size = new Size(arguments[1]);
     } else {
       // Rect::Rect(int width, int height);
+      this.origin = new Point;
       this.size = new Size(arguments[0], arguments[1]);
     }
     break;

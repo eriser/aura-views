@@ -100,21 +100,94 @@
         },
         
         test_Rect: function() {
+          // Rect()
           this.assert((new Rect).instanceOf(Rect));
+
+          // Rect(width, height)          
+          var r2a = new Rect(100, 500);
+          this.assertEqual(100, r2a.width);
+          this.assertEqual(500, r2a.height);
           
-          var ra = new Rect(100, 500);
-          this.assertEqual(100, ra.width);
-          this.assertEqual(500, ra.height);
+          // Rect(origin, size)
+          var p = new Point(50, 50);
+          var s = new Size(100, 100);
+          var r2b = new Rect(p, s);
+          this.assertEqual(r2b.width, 100);
+          this.assertEqual(r2b.height, 100);
+          this.assertEqual(r2b.x, 50);
+          this.assertEqual(r2b.y, 50);
+
+          // Rect(other_rect)
+          var r1 = new Rect(r2a);
+          this.assert(r1.origin.equals(r2a.origin));
+          this.assert(r1.size.equals(r2a.size));
           
-          /*
-          this.assert(r1.origin.equals(r2.origin));
-          this.assert(r1.size.equals(r2.size));
-          */
-          
+          // Rect(x, y, width, height)
           var r4 = new Rect(20, 10, 100, 500);
           this.assert(r4.origin.equals(new Point(20, 10)));
           this.assert(r4.size.equals(new Size(100, 500)));
+        },
+        test_Rect_getters_setters: function () {
+          var r = new Rect(20, 10, 500, 300);
+          // get x,y,width,height
+          this.assertEqual(20, r.x);
+          this.assertEqual(10, r.y);
+          this.assertEqual(500, r.width);
+          this.assertEqual(300, r.height);
+
+          // set x,y,width,height
+          this.assertEqual(30, r.x += 10);
+          this.assertEqual(30, r.y += 20);
+          this.assertEqual(520, r.width += 20);
+          this.assertEqual(320, r.height += 20);
+          
+          // get right,bottom
+          this.assertEqual(550, r.right);
+          this.assertEqual(350, r.bottom);
+          
+          // setRect
+          r.setRect(5, 5, 100, 100);
+          this.assertEqual(5, r.x);
+          this.assertEqual(5, r.y);
+          this.assertEqual(100, r.width);
+          this.assertEqual(100, r.height);
+        },
+        test_Rect_inset: function () {
+          var r = new Rect(50, 50, 100, 100);
+          
+          // inset(left, top, right, bottom)
+          r.inset(1, 2, 3, 4);
+          this.assertEqual(51, r.x);
+          this.assertEqual(52, r.y);
+          this.assertEqual(96, r.width);
+          this.assertEqual(94, r.height);
+          
+          // inset(horizontal, vertical)
+          r = new Rect(50, 50, 100, 100);
+          r.inset(5, 10);
+          this.assertEqual(55, r.x);
+          this.assertEqual(60, r.y);
+          this.assertEqual(90, r.width);
+          this.assertEqual(80, r.height);
+        },
+        test_Rect_offset: function () {
+          var r = new Rect(50, 50, 100, 100);
+          
+          // offset(x, y)
+          r.offset(10, 10);
+          this.assertEqual(60, r.x);
+          this.assertEqual(60, r.y);
+          
+          // offset(point)
+          r.offset(new Point(10, 10))
+          this.assertEqual(70, r.x);
+          this.assertEqual(70, r.y);
+        },
+        test_Rect_empty: function () {
+          this.assert((new Rect).empty());
+          this.assert(!(new Rect(0, 0, 100, 500)).empty());
         }
+        
         
       });
     //-->
