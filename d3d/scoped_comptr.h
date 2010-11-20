@@ -13,7 +13,7 @@ public:
   }
   ~ScopedComPtr() {
     if (ptr_)
-      prt_->Release();
+      ptr_->Release();
   }
 
   void Release() {
@@ -64,6 +64,8 @@ public:
   operator Interface*() const { return ptr_; }
   Interface* operator->() const { return ptr_; }
 private:
+
+  Interface* ptr_;
 };
 
 #endif  // SCOPED_COMPTR_H_
