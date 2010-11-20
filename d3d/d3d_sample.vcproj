@@ -173,6 +173,18 @@
 			RelativePath="app.cc"
 			>
 		</File>
+		<File
+			RelativePath=".\scoped_comptr.h"
+			>
+		</File>
+		<File
+			RelativePath=".\window.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\window.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
