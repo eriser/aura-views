@@ -18,13 +18,13 @@ Window::~Window() {
 }
 
 void Window::Create() {
-  hwnd_ = CreateWindow(kWindowClass, kWindowTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL,
-      NULL, NULL);
+  CreateWindow(kWindowClass, kWindowTitle, WS_OVERLAPPEDWINDOW,
+      100, 100, 600, 500, NULL, NULL,
+      NULL, this);
 }
 
 void Window::Show(int show_command) {
-  ShowWindow(hwnd_, show_command);
+  ShowWindow(hwnd_, SW_SHOW);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ void Window::Resize(int width, int height) {
                               reinterpret_cast<void**>(back_buffer.Receive()));
   hr = device_->CreateRenderTargetView(back_buffer, NULL,
                                        render_target_view_.Receive());
-  device_->OMSetRenderTargets(1, render_target_view_.get(), NULL);
+  device_->OMSetRenderTargets(1, render_target_view_.Receive(), NULL);
 
   D3D10_VIEWPORT viewport;
   viewport.Width = width;
@@ -94,6 +94,7 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd,
       break;
     case WM_ERASEBKGND:
       return 1;
+      /*
     case WM_PAINT:
       window->OnPaint();
       return 0;
@@ -114,6 +115,7 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd,
       break;
     case WM_WINDOWPOSCHANGED:
       break;
+      */
     case WM_DESTROY:
       PostQuitMessage(0);
       break;
@@ -135,7 +137,7 @@ void Window::RegisterClazz() {
   wcex.lpfnWndProc = &Window::WndProc;
   wcex.hInstance = NULL;
   wcex.lpszClassName = kWindowClass;
-  RegisterClassEx(&wcex);
+  ATOM g = RegisterClassEx(&wcex);
   registered = true;
 }
 
