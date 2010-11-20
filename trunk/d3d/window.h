@@ -20,8 +20,7 @@ class Window {
 
  private:
   void OnPaint();
-
-  void Resize(int width, int height);
+  void OnSize(int width, int height);
 
   static LRESULT CALLBACK WndProc(HWND hwnd,
                                   UINT message,
