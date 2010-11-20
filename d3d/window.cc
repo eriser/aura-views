@@ -33,7 +33,7 @@ void Window::Show(int show_command) {
 void Window::OnPaint() {
 }
 
-void Window::Resize(int width, int height) {
+void Window::OnSize(int width, int height) {
   DXGI_SWAP_CHAIN_DESC swap_chain_desc = {0};
   swap_chain_desc.BufferCount = 1;
   swap_chain_desc.BufferDesc.Width = width;
@@ -116,6 +116,9 @@ LRESULT CALLBACK Window::WndProc(HWND hwnd,
     case WM_WINDOWPOSCHANGED:
       break;
       */
+    case WM_SIZE:
+      window->OnSize(LOWORD(l_param), HIWORD(l_param));
+      break;
     case WM_DESTROY:
       PostQuitMessage(0);
       break;
