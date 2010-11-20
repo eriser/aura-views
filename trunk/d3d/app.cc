@@ -1,4 +1,6 @@
 #include <windows.h>
+#include <d3d10.h>
+#include <d3dx10.h>
 #include <dwmapi.h>
 
 static const wchar_t* kWindowClass = L"BrokenGlassWindow";
@@ -8,14 +10,22 @@ static const int kClientRectTopOffset = 40;
 
 class Window {
  public:
-  Window() {}
+   Window() : device_(NULL), swap_chain_(NULL), render_target_view_(NULL) {
+    RegisterClazz();
+  }
   ~Window() {}
 
   void Create() {
-    CreateWindow(kWindowClass, kWindowTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL,
-      instance, NULL);
+    hwnd_ = CreateWindow(kWindowClass, kWindowTitle, WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL,
+        NULL, NULL);
   }
+
+  void Show(int show_command) {
+    ShowWindow(hwnd_, show_command);
+  }
+
+  HWND hwnd() const { return hwnd_; }
 
  private:
   void Resize(int width, int height) {
@@ -31,9 +41,52 @@ class Window {
     swap_chain_desc.SampleDesc.Count = 1;
     swap_chain_desc.SampleDesc.Quality = 0;
     swap_chain_desc.Windowed = 1;
+
+    HRESULT hr = D3D10CreateDeviceAndSwapChain(NULL,
+                                               D3D10_DRIVER_TYPE_HARDWARE,
+                                               NULL,
+                                               0,
+                                               D3D10_SDK_VERSION,
+                                               &swap_chain_desc,
+                                               &swap_chain_,
+                                               &device_);
+    ID3D10Texture2D* back_buffer = NULL;
+    hr = swap_chain_->GetBuffer(0, __uuidof(ID3D10Texture2D),
+                                (void**)&back_buffer);
+    hr = device_->CreateRenderTargetView(back_buffer, NULL,
+                                         &render_target_view_);
+    hr = back_buffer->Release();
+    device_->OMSetRenderTargets(1, &render_target_view_, NULL);
+
+    D3D10_VIEWPORT viewport;
+    viewport.Width = width;
+    viewport.Height = height;
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+    device_->RSSetViewports(1, &viewport);
+  }
+
+  static void RegisterClazz() {
+    static bool registered = false;
+    if (registered)
+      return;
+    WNDCLASSEX wcex = {0};
+    wcex.cbSize = sizeof(wcex);
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProc;
+    wcex.hInstance = NULL;
+    wcex.lpszClassName = kWindowClass;
+    RegisterClassEx(&wcex);
+    registered = true;
   }
 
   HWND hwnd_;
+
+  ID3D10Device* device_;
+  IDXGISwapChain* swap_chain_;
+  ID3D10RenderTargetView* render_target_view_;
 };
 
 static bool g_glass = true;
@@ -155,22 +208,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM w_param,
   return 0;
 }
 
-ATOM RegisterClazz(HINSTANCE instance) {
-  WNDCLASSEX wcex = {0};
-  wcex.cbSize = sizeof(wcex);
-  wcex.style = CS_HREDRAW | CS_VREDRAW;
-  wcex.lpfnWndProc = WndProc;
-  wcex.hInstance = instance;
-  wcex.lpszClassName = kWindowClass;
-  return RegisterClassEx(&wcex);
-}
-
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int show_command) {
-  RegisterClazz(instance);
-  HWND hwnd = CreateWindow(kWindowClass, kWindowTitle, WS_OVERLAPPEDWINDOW,
-                           CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL,
-                           instance, NULL);
-  ShowWindow(hwnd, show_command);
+  Window window;
+  window.Create();
+  window.Show(show_command);
 
   MSG msg;
   while (GetMessage(&msg, NULL, 0, 0)) {
