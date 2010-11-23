@@ -3,7 +3,7 @@
 
 #include <unknwn.h>
 
-template <class Interface, const IID* interface_id = &__uuidof(Interface)>
+template <class Interface>
 class ScopedComPtr {
 public:
   ScopedComPtr() : ptr_(NULL) {}
@@ -48,16 +48,6 @@ public:
 
   HRESULT QueryFrom(IUnknown* object) {
     return object->QueryInterface(Receive());
-  }
-
-  HRESULT CreateInstance(const CLSID& clsid, IUnknown* outer = NULL,
-      DWORD context = CLSCTX_ALL) {
-    return ::CoCreateInstance(clsid, outer, context, *interface_id,
-                              reinterpret_cast<void**>(&ptr_));
-  }
-
-  static const IID& iid() {
-    return *interface_id;
   }
 
   Interface* get() const { return ptr_; }
