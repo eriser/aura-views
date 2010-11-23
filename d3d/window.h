@@ -18,9 +18,14 @@ class Window {
 
   HWND hwnd() const { return hwnd_; }
 
- private:
   void OnPaint();
+ private:
+  void OnCreate();
   void OnSize(int width, int height);
+
+  void CreateSwapChainForDevice(int width, int height);
+
+  void HandleFailure(HRESULT hr);
 
   static LRESULT CALLBACK WndProc(HWND hwnd,
                                   UINT message,
@@ -34,6 +39,10 @@ class Window {
   ScopedComPtr<ID3D10Device> device_;
   ScopedComPtr<IDXGISwapChain> swap_chain_;
   ScopedComPtr<ID3D10RenderTargetView> render_target_view_;
+  ScopedComPtr<ID3D10Effect> effect_;
+  ID3D10EffectTechnique* effect_technique_;
+  ScopedComPtr<ID3D10InputLayout> vertex_layout_;
+  ScopedComPtr<ID3D10Buffer> vertex_buffer_;
 };
 
 #endif  // WINDOW_H_
